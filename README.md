@@ -5,8 +5,6 @@
 **A tiny neural network that grows its own neurons, and a lab that explains every single thing it does.**
 Every neuron, every weight change, every concept, every mistake: measured, named and checked against the truth.
 
-[![JavaScript](https://img.shields.io/badge/JavaScript-vanilla-yellow?style=flat-square&logo=javascript)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![HTML5 Canvas](https://img.shields.io/badge/Rendering-HTML5_Canvas-orange?style=flat-square&logo=html5)](https://developer.mozilla.org/docs/Web/API/Canvas_API)
 [![No dependencies](https://img.shields.io/badge/Dependencies-none-brightgreen?style=flat-square)](#requirements)
 [![Offline](https://img.shields.io/badge/Runs-100%25_offline-blue?style=flat-square)](#quick-start)
 [![Languages](https://img.shields.io/badge/UI-English_%7C_Français-purple?style=flat-square)](#quick-start)
@@ -537,4 +535,3 @@ Typical timings in Chrome on an ordinary PC: 300 generations take about 3 s (cre
 ## License
 
 [MIT](LICENSE), © 2026 thesirix. Open source: fork it, break it, add worlds, invent engines. A star is always appreciated ⭐, and new small problems are even more appreciated.
-# SNPB
