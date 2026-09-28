@@ -1,0 +1,14 @@
+# Notes de travail personnelles (restent sur ce PC)
+SUIVI.md
+LISEZMOI.md
+
+# Début abandonné d'une version PyQt, non utilisé
+labo/
+
+# Fichiers système et éditeur
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+node_modules/

@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CNPS</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>
+        <span class="titre-principal" data-en="Semantic Neuroplastic Brain"
+          >Cerveau Neuroplastique Sémantique</span
+        >
+        <small
+          data-en="Deep learning research lab · a brain that grows and explains itself"
+          >Laboratoire de recherche sur le deep learning · un cerveau qui pousse
+          et qui s'explique</small
+        >
+      </h1>
+      <!-- Drapeaux dessinés en SVG : Windows n'affiche pas les emojis de drapeaux -->
+      <div id="langueUI" class="langues" title="Langue / Language">
+        <button data-langue="en">
+          <svg viewBox="0 0 60 30">
+            <clipPath id="drapeauUK">
+              <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+            </clipPath>
+            <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
+            <path
+              d="M0,0 L60,30 M60,0 L0,30"
+              clip-path="url(#drapeauUK)"
+              stroke="#C8102E"
+              stroke-width="4"
+            />
+            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
+            <path
+              d="M30,0 v30 M0,15 h60"
+              stroke="#C8102E"
+              stroke-width="6"
+            /></svg
+          >EN
+        </button>
+        <button data-langue="fr">
+          <svg viewBox="0 0 3 2">
+            <rect width="1" height="2" fill="#0055a4" />
+            <rect x="1" width="1" height="2" fill="#fff" />
+            <rect x="2" width="1" height="2" fill="#ef4135" /></svg
+          >FR
+        </button>
+      </div>
+      <!-- Largeurs fixes : les boutons ne bougent pas quand on passe du français à l'anglais -->
+      <div class="barre">
+        <div class="rangee">
+          <label class="bascule"
+            ><span class="etiq" style="--l: 46px" data-en="World">Monde</span>
+            <select id="monde"></select
+          ></label>
+          <select id="mode" title="Variante" data-en-title="Variant"></select>
+          <select id="taille" title="Taille" data-en-title="Size"></select>
+          <label class="bascule"
+            ><span class="etiq" style="--l: 46px" data-en="Seed">Graine</span>
+            <input
+              id="graine"
+              type="number"
+              value="7"
+              title="Change ce nombre pour obtenir d'autres règles secrètes"
+              data-en-title="Change this number to get other secret rules"
+          /></label>
+          <button id="generer" data-en="New secret rules">
+            Nouvelles règles secrètes
+          </button>
+        </div>
+        <div class="rangee">
+          <label class="bascule"
+            ><span class="etiq" style="--l: 92px" data-en="Temperament"
+              >Tempérament</span
+            >
+            <select id="temperament">
+              <option value="econome" data-en="Thrifty">Économe</option>
+              <option value="equilibre" selected data-en="Balanced">
+                Équilibré
+              </option>
+              <option value="explorateur" data-en="Explorer">
+                Explorateur
+              </option>
+            </select>
+          </label>
+          <label class="bascule"
+            ><span class="etiq" style="--l: 58px" data-en="Duration"
+              >Durée</span
+            >
+            <select id="duree">
+              <option value="300" data-en="300 generations">
+                300 générations
+              </option>
+              <option value="600" selected data-en="600 generations">
+                600 générations
+              </option>
+              <option value="1500" data-en="1500 generations">
+                1500 générations
+              </option>
+            </select>
+          </label>
+          <button id="entrainer" class="principal"></button>
+          <button id="recommencer" data-en="Restart the brain">
+            Recommencer le cerveau
+          </button>
+          <label class="bascule"
+            ><input id="voirRegles" type="checkbox" />
+            <span data-en="Show the secret rules"
+              >Voir les règles secrètes</span
+            ></label
+          >
+        </div>
+      </div>
+    </header>
+    <section class="progression">
+      <div class="barre-prog"><div id="progRempli"></div></div>
+      <span id="progTexte"></span>
+    </section>
+    <section id="direct" class="direct"></section>
+
+    <section class="stats">
+      <div class="stat">
+        <b id="sGen">0</b><span data-en="generation">génération</span>
+      </div>
+      <div class="stat">
+        <b id="sScore">–</b
+        ><span data-en="score (100 % = perfect rules)"
+          >score (100 % = règles parfaites)</span
+        >
+      </div>
+      <div class="stat">
+        <b id="sJuste">–</b
+        ><span data-en="of its bets on allowed answers"
+          >de ses paris sur des réponses permises</span
+        >
+      </div>
+      <div class="stat">
+        <b id="sCaches">0</b
+        ><span data-en="neurons in the middle">neurones au milieu</span>
+      </div>
+      <div class="stat">
+        <b id="sLiens">0</b><span data-en="links">liens</span>
+      </div>
+      <div class="stat">
+        <b id="sEspeces">0</b
+        ><span data-en="species of brains">espèces de cerveaux</span>
+      </div>
+      <details class="explication">
+        <summary data-en="What do these numbers mean?">
+          Que veulent dire ces chiffres ?
+        </summary>
+        <ul
+          data-en='<li><b>Score</b>: 100 % = it guesses as well as someone who knows the rules. You cannot do better: when 4 answers are allowed, the best possible is to put 25 % on each. The brain is not imprecise, the rules leave the choice.</li>
+      <li><b>Bets on allowed answers</b>: the share of its probabilities placed on allowed answers. 99.7 % = it almost never bets on a forbidden answer.</li>
+      <li><b>Neurons in the middle</b> (also called "hidden neurons"): the ones the brain grew between what it reads and its answer. They are called hidden because you cannot see them from outside: they are neither inputs nor answers. This number only counts those of the best brain <b>right now</b>: many others were born and died along the way (see the growth film).</li>
+      <li><b>Species of brains</b>: the lab runs 100 brains at the same time. Those with a similar shape form a species. A brain mostly competes with members of its own species: a new idea (a neuron that just grew) gets time to mature instead of being eliminated right away by the champions.</li>'
+        >
+          <li>
+            <b>Score</b> : 100 % = il devine aussi bien que quelqu'un qui
+            connaît les règles. On ne peut pas faire mieux : quand 4 réponses
+            sont permises, le mieux possible est de mettre 25 % sur chacune. Le
+            cerveau n'est pas imprécis, ce sont les règles qui laissent le
+            choix.
+          </li>
+          <li>
+            <b>Paris sur des réponses permises</b> : la part de ses probabilités
+            posée sur des réponses autorisées. 99,7 % = il ne parie presque
+            jamais sur une réponse interdite.
+          </li>
+          <li>
+            <b>Neurones au milieu</b> (qu'on appelle aussi « neurones cachés »)
+            : ceux que le cerveau a fait pousser entre ce qu'il lit et sa
+            réponse. On les dit cachés parce qu'on ne les voit pas de
+            l'extérieur : ce ne sont ni les entrées, ni les réponses. Ce chiffre
+            compte seulement ceux du meilleur cerveau <b>aujourd'hui</b> :
+            beaucoup d'autres sont nés puis morts en route (voir le film de la
+            croissance).
+          </li>
+          <li>
+            <b>Espèces de cerveaux</b> : le labo fait vivre 100 cerveaux en même
+            temps. Ceux qui ont une forme proche forment une espèce. Un cerveau
+            se compare surtout aux membres de son espèce : une idée nouvelle (un
+            neurone qui vient de pousser) a ainsi le temps de mûrir au lieu
+            d'être éliminée tout de suite par les champions.
+          </li>
+        </ul>
+      </details>
+    </section>
+
+    <main>
+      <div class="col">
+        <div class="carte">
+          <h2 id="titreMonde"></h2>
+          <p class="aide" id="aideMonde"></p>
+          <div id="regles" class="regles cache"></div>
+          <div id="infosMonde"></div>
+          <div id="panneauMonde"></div>
+        </div>
+        <div class="carte">
+          <h2 id="titreCarte"></h2>
+          <p class="aide" id="aideCarte"></p>
+          <canvas id="carte" height="340"></canvas>
+          <div id="concepts" class="concepts"></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="carte">
+          <h2 data-en="The brain">Le cerveau</h2>
+          <p
+            class="aide"
+            data-en='The signal goes from left to right. <b>On the left</b>: the 3D position (x, y, z) of the two things it reads. <b>In the middle</b>: the neurons the brain grew by itself, sorted in <b>layers</b> (one plane per layer), with what switches them on underneath. <b>On the right</b>: its answer, one line per possible answer with its probability. Blue = link pushing towards "yes", orange = towards "no". A newborn neuron comes out of the link it cuts (green halo); what dies turns red and disappears. <b>Drag</b> to rotate, <b>click a neuron</b> for details.'
+          >
+            Le signal va de gauche à droite. <b>À gauche</b> : la position 3D
+            (x, y, z) des deux choses qu'il lit. <b>Au milieu</b> : les neurones
+            que le cerveau a fait pousser tout seul, rangés en
+            <b>couches</b> (un plan par couche), avec en dessous ce qui les
+            allume. <b>À droite</b> : sa réponse, une ligne par réponse possible
+            avec sa probabilité. Bleu = lien qui pousse vers « oui », orange =
+            vers « non ». Un neurone qui naît sort du lien qu'il coupe (halo
+            vert) ; ce qui meurt devient rouge et disparaît. <b>Glisse</b> pour
+            faire tourner, <b>clique sur un neurone</b> pour le détail.
+          </p>
+          <div class="test-choix">
+            <label class="bascule"
+              ><input id="tousLiens" type="checkbox" />
+              <span data-en="Also show weak links"
+                >Afficher aussi les liens faibles</span
+              ></label
+            >
+            <button id="vueFace" data-en="Reset the view">
+              Remettre la vue
+            </button>
+          </div>
+          <div id="bandeauEteints" class="bandeau-eteints cache"></div>
+          <canvas id="reseau" height="540"></canvas>
+          <h2 style="margin-top: 14px" data-en="Growth film">
+            Film de la croissance
+          </h2>
+          <p
+            class="aide"
+            data-en="Each frame = a moment when the best brain changed shape. Scroll to see, frame by frame, which neuron was born or died, and <b>why</b> it was kept."
+          >
+            Chaque image = un moment où le meilleur cerveau a changé de forme.
+            Fais défiler pour voir, image par image, quel neurone est né ou
+            mort, et <b>pourquoi</b> il a été gardé.
+          </p>
+          <div class="film">
+            <button
+              id="filmPrec"
+              title="Image précédente"
+              data-en-title="Previous frame"
+            >
+              ◀
+            </button>
+            <input id="filmCurseur" type="range" min="0" max="0" value="0" />
+            <button
+              id="filmSuiv"
+              title="Image suivante"
+              data-en-title="Next frame"
+            >
+              ▶
+            </button>
+            <button id="filmLire"></button>
+            <button
+              id="filmDirect"
+              class="principal"
+              title="Revenir au cerveau en direct"
+              data-en-title="Back to the live brain"
+              data-en="● Live"
+            >
+              ● Direct
+            </button>
+          </div>
+          <div id="filmPourquoi" class="pourquoi"></div>
+        </div>
+        <div class="carte">
+          <h2 data-en="Progress">Progression</h2>
+          <p
+            class="aide"
+            data-en="Blue: score. Green: number of neurons in the middle."
+          >
+            Bleu : score. Vert : nombre de neurones au milieu.
+          </p>
+          <canvas id="courbe" height="150"></canvas>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="carte">
+          <h2 data-en="Test the brain">Tester le cerveau</h2>
+          <p
+            class="aide"
+            data-en="Choose what it reads: the brain gives its answer, and you see its neurons light up. If several answers are allowed, it spreads its chances between them (4 allowed = 25 % each): that is the right answer, not hesitation."
+          >
+            Choisis ce qu'il lit : le cerveau donne sa réponse, et tu vois ses
+            neurones s'allumer. Si plusieurs réponses sont permises, il répartit
+            ses chances entre elles (4 permises = 25 % chacune) : c'est la bonne
+            réponse, pas une hésitation.
+          </p>
+          <div class="test-choix">
+            <label class="petit"
+              ><span id="labelA"></span
+              ><select id="t2"></select
+            ></label>
+            <label class="petit"
+              ><span id="labelB"></span
+              ><select id="t1"></select
+            ></label>
+            <span class="statut">→ ?</span>
+          </div>
+          <div id="barres" class="barres"></div>
+          <div class="corriger">
+            <div class="ligne-corr">
+              <b data-en="✏️ Correct it">✏️ Corriger</b>
+            </div>
+            <div class="ligne-corr">
+              <select id="corrA"></select
+              ><span>+</span
+              ><select id="corrB"></select>
+            </div>
+            <div class="ligne-corr">
+              <span data-en="the right answer is">la bonne réponse est</span
+              ><select id="bonneReponse"></select>
+              <button id="apprendre" class="principal" data-en="Teach it">
+                Apprends-lui
+              </button>
+            </div>
+            <div class="ligne-corr">
+              <select
+                id="modeReparation"
+                title="Comment le cerveau intègre ta correction"
+                data-en-title="How the brain takes your correction in"
+              >
+                <option
+                  value="guidee"
+                  data-en="🔬 Repair by the Researcher (instant)"
+                >
+                  🔬 Réparation par le Chercheur (immédiate)
+                </option>
+                <option
+                  value="naturelle"
+                  data-en="🎲 Repair by the Evolution (150 generations)"
+                >
+                  🎲 Réparation par l'Évolution (150 générations)
+                </option>
+              </select>
+            </div>
+            <div class="ligne-corr">
+              <button
+                id="apprendreTout"
+                title="Comme un professeur qui connaît les vraies règles : il lui apprend la bonne réponse partout où il se trompe, y compris sur ce qu'il n'a jamais vu."
+                data-en-title="Like a teacher who knows the real rules: it teaches the right answer everywhere it is wrong, including what it has never seen."
+                data-en="🎓 Correct all its mistakes"
+              >
+                🎓 Corriger toutes ses erreurs
+              </button>
+            </div>
+          </div>
+          <div id="resultatCorrection" class="pourquoi"></div>
+          <div class="test-choix" style="margin-top: 12px" id="zoneInventer">
+            <button id="inventer" data-en="The brain invents a sentence">
+              Le cerveau invente une phrase
+            </button>
+          </div>
+          <div id="invention" class="invention"></div>
+        </div>
+        <div class="carte">
+          <h2 data-en="Selected neuron">Neurone sélectionné</h2>
+          <div id="neurone" class="neurone-vide"></div>
+          <canvas id="profil" height="300" class="cache"></canvas>
+          <div id="topCtx" class="top-ctx"></div>
+        </div>
+      </div>
+
+      <div class="carte large">
+        <h2 data-en="🤔 Reflection: the engines that think">
+          🤔 Réflexion : les moteurs qui réfléchissent
+        </h2>
+        <p
+          class="aide"
+          data-en="The lab has three engines. <b>🎲 The Evolution</b> (engine 1) is normal training (the ▶ Train button): chance proposes, gradient descent tunes, selection keeps the best. It is the intuition: it answers fast, without knowing why. <b>🔬 The Researcher</b> (engine 2) observes this intuition through the explainer, practises what it knows badly, then tries the unknown or avoids it, and repairs itself by explaining why. <b>🧩 The Architect</b> (engine 3) does the opposite of chance: it draws meaning from its cases, then builds one neuron per rule. None of them is a consciousness: they are brains that observe themselves."
+        >
+          Le labo a trois moteurs. <b>🎲 L'Évolution</b> (moteur 1), c'est
+          l'entraînement normal (le bouton ▶ Entraîner) : le hasard propose, la
+          descente de gradient règle, la sélection garde les meilleurs. C'est
+          l'intuition : il répond vite, sans savoir pourquoi.
+          <b>🔬 Le Chercheur</b> (moteur 2) observe cette intuition grâce à
+          l'explicateur, s'exerce sur ce qu'il connaît mal, puis essaie
+          l'inconnu ou s'en méfie, et se répare en disant pourquoi.
+          <b>🧩 L'Architecte</b> (moteur 3) fait l'inverse du hasard : il tire
+          le sens de ses cas, puis construit un neurone par règle. Aucun n'est
+          une conscience : ce sont des cerveaux qui s'observent.
+        </p>
+        <div class="analyse-actions">
+          <select id="modeReflexion">
+            <option
+              value="empirique"
+              data-en="🔬 Researcher · 🧪 empirical: it tries"
+            >
+              🔬 Chercheur · 🧪 empirique : il essaie
+            </option>
+            <option
+              value="prudent"
+              data-en="🔬 Researcher · 🛡️ cautious: it avoids the unknown"
+            >
+              🔬 Chercheur · 🛡️ prudent : il évite l'inconnu
+            </option>
+            <option
+              value="architecte"
+              data-en="🧩 Architect: it builds from meaning"
+            >
+              🧩 Architecte : il construit par le sens
+            </option>
+          </select>
+          <span
+            class="info"
+            tabindex="0"
+            data-tip="🔬 LE CHERCHEUR (moteur 2) — mode d'emploi : entraîne le cerveau (ou pas : il peut partir de zéro), choisis un mode, clique « Laisse-le réfléchir ». 1) Il s'exerce sur ce qu'il connaît mal : il règle ses poids, fait pousser un neurone exprès si ça ne suffit pas, et vérifie qu'il a bien réparé quelque chose (sinon il le retire). 2) Face à l'inconnu : 🧪 EMPIRIQUE, il essaie les situations jamais vues (il goûte l'objet, livre le combat, écoute la suite de la phrase), compare avec ce qu'il prévoyait et apprend de ses surprises, tour après tour, jusqu'à ce que ses prédictions soient confirmées ; 🛡️ PRUDENT, il ne devine plus, il marque « je ne sais pas » et évite (la créature ne mange plus l'objet inconnu, l'arène affiche un « ? »). 3) Il écrit ses déductions. Tout est raconté ici et dans le film."
+            data-en-tip="🔬 THE RESEARCHER (engine 2) — how to use it: train the brain (or not: it can start from scratch), pick a mode, click « Let it think ». 1) It practises what it knows badly: it tunes its weights, grows a neuron on purpose if that is not enough, and checks that it really repaired something (otherwise it removes it). 2) Facing the unknown: 🧪 EMPIRICAL, it tries never-seen situations (tastes the object, fights the battle, listens to how the sentence goes on), compares with what it expected and learns from its surprises, round after round, until its predictions are confirmed; 🛡️ CAUTIOUS, it stops guessing, marks « I don't know » and avoids (the creature no longer eats the unknown object, the arena shows a « ? »). 3) It writes down its deductions. Everything is told here and in the film."
+            >🔬 ?</span
+          >
+          <span
+            class="info large-info"
+            tabindex="0"
+            data-tip="🧩 L'ARCHITECTE (moteur 3), inspiré de KBANN (Knowledge-Based Artificial Neural Networks, Towell et Shavlik, 1994). L'idée de KBANN : au lieu de laisser le hasard inventer des neurones, on écrit d'abord des règles, on transforme chaque règle en neurone, et l'apprentissage ne fait qu'affiner. Ici, les règles ne viennent pas d'un humain : l'Architecte les tire lui-même de ses cas. 1) Il répertorie tout ce qu'il a vu. 2) Il en tire le sens : des concepts (les éléments qui donnent toujours les mêmes réponses), des règles, des exceptions. 3) Il crée un neurone par règle, câblé exprès, et lui apprend à s'allumer sur ses cas et seulement eux. 4) Il vérifie chaque neurone. Résultat : un cerveau où chaque neurone naît avec son sens, « N12 = (bleu, rose) + (triangle, losange) → poison ». Mode d'emploi : choisis Architecte, clique « Laisse-le réfléchir », puis compare avec le cerveau de l'Évolution : lequel est le plus juste, lequel est le plus simple ?"
+            data-en-tip="🧩 THE ARCHITECT (engine 3), inspired by KBANN (Knowledge-Based Artificial Neural Networks, Towell and Shavlik, 1994). The KBANN idea: instead of letting chance invent neurons, you first write rules, turn each rule into a neuron, and learning only refines. Here, the rules do not come from a human: the Architect draws them itself from its cases. 1) It lists everything it saw. 2) It draws meaning: concepts (elements that always give the same answers), rules, exceptions. 3) It creates one neuron per rule, wired on purpose, and teaches it to switch on for its cases and only them. 4) It checks each neuron. Result: a brain where each neuron is born with its meaning, « N12 = (blue, pink) + (triangle, diamond) → poison ». How to use it: pick Architect, click « Let it think », then compare with the Evolution brain: which is more accurate, which is simpler?"
+            >🧩 KBANN ?</span
+          >
+          <button id="reflechir" class="principal" data-en="🤔 Let it think">
+            🤔 Laisse-le réfléchir
+          </button>
+          <span id="statutReflexion" class="statut"></span>
+        </div>
+        <div id="pensees"></div>
+        <div id="resultatReflexion" class="pourquoi"></div>
+      </div>
+
+      <div class="carte large">
+        <h2 data-en="🧠 What the brain understood">
+          🧠 Ce que le cerveau a compris
+        </h2>
+        <p
+          class="aide"
+          data-en="From its concepts and its answers, the brain writes down by itself the rules it thinks it found, in the same format as the one asked of the AI. Click <b>Reveal</b> to check: ✔ true / ✘ false for its rules, ✅ found / 🟡 half / ❌ missed for the real ones."
+        >
+          À partir de ses concepts et de ses réponses, le cerveau écrit lui-même
+          les règles qu'il pense avoir trouvées, dans le même format que celui
+          demandé à l'IA. Clique sur <b>Révéler</b> pour vérifier : ✔ vrai / ✘
+          faux pour ses règles, ✅ trouvée / 🟡 à moitié / ❌ ratée pour les
+          vraies.
+        </p>
+        <div class="analyse-actions">
+          <button
+            id="reecrire"
+            class="principal"
+            data-en="🧠 The brain rewrites the rules"
+          >
+            🧠 Le cerveau réécrit les règles
+          </button>
+          <span id="statutReecrire" class="statut"></span>
+        </div>
+        <div class="comparaison">
+          <div>
+            <h3 data-en="Its rules">Ses règles</h3>
+            <div id="devineCerveau"></div>
+          </div>
+          <div>
+            <h3 data-en="The real rules">Les vraies règles</h3>
+            <div id="vraiesCerveau" class="statut"></div>
+          </div>
+        </div>
+        <div id="grilleCerveau"></div>
+      </div>
+
+      <div class="carte large">
+        <h2 data-en="Log">Journal</h2>
+        <div
+          class="aide"
+          data-en='How the brain "decides": <b>chance</b> proposes shape changes (create a neuron, a link, destroy one). <b>Gradient descent</b> then tunes the weights. <b>Selection</b> keeps the brains that predict best. The "reason" for a choice is therefore: it survived because it improved the score, or because it kept the same score with a simpler brain.'
+        >
+          Comment le cerveau « décide » : le <b>hasard</b> propose des
+          changements de forme (créer un neurone, un lien, en détruire). La
+          <b>descente de gradient</b> règle ensuite les poids. La
+          <b>sélection</b> garde les cerveaux qui prédisent le mieux. La «
+          raison » d'un choix, c'est donc : il a survécu parce qu'il a amélioré
+          le score, ou parce qu'il a gardé le même score avec un cerveau plus
+          simple.
+        </div>
+        <div class="onglets">
+          <button
+            data-onglet="histoire"
+            class="actif"
+            data-en="History of the best brain"
+          >
+            Histoire du meilleur cerveau
+          </button>
+          <button
+            data-onglet="details"
+            data-en="Detailed log (I raise / I lower)"
+          >
+            Journal détaillé (je monte / je baisse)
+          </button>
+          <button data-onglet="essais" data-en="Attempts per generation">
+            Essais par génération
+          </button>
+          <button data-onglet="rejets" data-en="Failed attempts, explained">
+            Essais ratés, expliqués
+          </button>
+        </div>
+        <div id="journal" class="journal"></div>
+      </div>
+
+      <details class="carte large defi">
+        <summary>
+          <h2 data-en="🏆 Challenge: can an AI do as well as the explainer?">
+            🏆 Défi : une IA fait-elle aussi bien que l'explicateur ?
+          </h2>
+        </summary>
+        <p
+          class="intro-defi"
+          data-en="The lab's explainer <b>measures</b> what each neuron does. Here, you challenge a free AI (Claude, Gemini, ChatGPT) to <b>give it meaning</b>: it only receives the inside of the brain, <b>never the examples or the rules</b>, and must explain each neuron and guess the secret rules. Then you check whether it is right."
+        >
+          L'explicateur du labo <b>mesure</b> ce que fait chaque neurone. Ici,
+          tu mets une IA gratuite (Claude, Gemini, ChatGPT) au défi de
+          <b>lui donner du sens</b> : elle reçoit seulement l'intérieur du
+          cerveau, <b>jamais les exemples ni les règles</b>, et doit expliquer
+          chaque neurone et deviner les règles secrètes. Ensuite, on vérifie si
+          elle a raison.
+        </p>
+        <ol
+          class="etapes"
+          data-en='<li>Train the brain, then click <b>⏸ Pause</b> (the copied text describes the brain as it is at that moment).</li>
+      <li>Click <b>Copy the text for the AI</b> below.</li>
+      <li>Open a free AI in another tab (claude.ai, gemini.google.com or chatgpt.com) and start a <b>new conversation</b>.</li>
+      <li>Paste the text (<b>Ctrl + V</b>) and send it. Wait until the AI has completely finished answering.</li>
+      <li>Copy its <b>whole</b> answer (small "copy" button under the answer).</li>
+      <li>Come back here, paste it in the big box below, then click <b>Show the analysis</b>.</li>
+      <li>Click <b>Reveal</b>. On the left, each AI rule is tested on the real rules (✔ true, ✘ false). On the right, each real rule gets ✅ found, 🟡 half or ❌ missed.</li>'
+        >
+          <li>
+            Entraîne le cerveau, puis clique sur <b>⏸ Pause</b> (le texte copié
+            décrit le cerveau tel qu'il est à ce moment-là).
+          </li>
+          <li>Clique sur <b>Copier le texte pour l'IA</b> ci-dessous.</li>
+          <li>
+            Ouvre une IA gratuite dans un autre onglet (claude.ai,
+            gemini.google.com ou chatgpt.com) et démarre une
+            <b>nouvelle conversation</b>.
+          </li>
+          <li>
+            Colle le texte (<b>Ctrl + V</b>) et envoie-le. Attends que l'IA ait
+            complètement fini de répondre.
+          </li>
+          <li>
+            Copie <b>toute</b> sa réponse (petit bouton « copier » sous la
+            réponse).
+          </li>
+          <li>
+            Reviens ici, colle-la dans la grande zone plus bas, puis clique sur
+            <b>Afficher l'analyse</b>.
+          </li>
+          <li>
+            Clique sur <b>Révéler</b>. À gauche, chaque règle de l'IA est testée
+            sur les vraies règles (✔ vrai, ✘ faux). À droite, chaque vraie règle
+            reçoit ✅ trouvée, 🟡 à moitié ou ❌ ratée.
+          </li>
+        </ol>
+        <div class="analyse-actions">
+          <button
+            id="copier"
+            class="principal"
+            data-en="Copy the text for the AI"
+          >
+            Copier le texte pour l'IA
+          </button>
+          <label class="bascule"
+            ><input id="avecPredictions" type="checkbox" checked />
+            <span data-en="Include the brain's predictions (easier for the AI)"
+              >Inclure les prédictions du cerveau (plus facile pour l'IA)</span
+            ></label
+          >
+          <span
+            class="info"
+            tabindex="0"
+            data-tip="Attention : quand c'est coché, l'IA voit ce que le cerveau répond pour chaque cas. Elle peut alors deviner les règles juste en regardant ces réponses, sans rien comprendre aux neurones. Pour tester si elle sait vraiment lire l'intérieur du cerveau, décoche cette case."
+            data-en-tip="Warning: when this is checked, the AI sees what the brain answers for every case. It can then guess the rules just by looking at those answers, without understanding the neurons at all. To test whether it can really read the inside of the brain, uncheck this box."
+            >?</span
+          >
+          <span id="statutAnalyse" class="statut"></span>
+        </div>
+        <textarea
+          id="reponseManuelle"
+          placeholder="Étape 6 : colle ici la réponse de l'IA."
+          data-en-placeholder="Step 6: paste the AI's answer here."
+        ></textarea>
+        <div class="analyse-actions" style="margin-top: 6px">
+          <button
+            id="afficherManuel"
+            class="principal"
+            data-en="Show the analysis"
+          >
+            Afficher l'analyse
+          </button>
+        </div>
+        <div class="comparaison" id="comparaison">
+          <div>
+            <h3 data-en="Rules found by the AI">
+              Les règles trouvées par l'IA
+            </h3>
+            <div id="devine"></div>
+          </div>
+          <div>
+            <h3 data-en="The real rules">Les vraies règles</h3>
+            <div id="vraies" class="statut"></div>
+          </div>
+        </div>
+        <div id="grilleComparaison"></div>
+        <details id="rapportBloc" class="rapport-bloc cache">
+          <summary
+            data-en="Read the AI's whole explanation (what each neuron does, why the brain has this shape…)"
+          >
+            Lire toute l'explication de l'IA (ce que fait chaque neurone,
+            pourquoi le cerveau a cette forme…)
+          </summary>
+          <div id="rapport" class="rapport"></div>
+        </details>
+      </details>
+    </main>
+
+    <script src="i18n.js"></script>
+    <script src="mondes.js"></script>
+    <script src="langue.js"></script>
+    <script src="verif.js"></script>
+    <script src="combats.js"></script>
+    <script src="creature.js"></script>
+    <script src="neat.js"></script>
+    <script src="explicateur.js"></script>
+    <script src="reflexion.js"></script>
+    <script src="architecte.js"></script>
+    <script src="dessin.js"></script>
+    <script src="analyse.js"></script>
+    <script src="film.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
